@@ -10,7 +10,6 @@ public class Blog {
     private Date CreatedDate;
     private int Views;
     private String Content;
-    private int ReadTime;
     private String Title;
 
     public int getBlogID() {
@@ -59,14 +58,6 @@ public class Blog {
 
     public void setContent(String content) {
         Content = content;
-    }
-
-    public int getReadTime() {
-        return ReadTime;
-    }
-
-    public void setReadTime(int readTime) {
-        ReadTime = readTime;
     }
 
     public String getTitle() {

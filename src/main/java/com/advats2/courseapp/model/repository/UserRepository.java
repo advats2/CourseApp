@@ -2,10 +2,14 @@ package com.advats2.courseapp.model.repository;
 
 import com.advats2.courseapp.config.MyUserDetails;
 import com.advats2.courseapp.model.*;
+import org.springframework.data.util.Pair;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +42,8 @@ public class UserRepository {
         Optional<Educator> educatorOptional = educators.isEmpty() ? Optional.empty() : Optional.of(educators.get(0));
         if(educatorOptional.isPresent()) {
             educatorOptional.get().setRole("EDUCATOR");
+            educatorOptional.get().setEmails(getEducatorEmails(educatorOptional.get().getUsername()));
+            educatorOptional.get().setFields(getEducatorFields(educatorOptional.get().getUsername()));
         }
         return educatorOptional;
     }
@@ -47,6 +53,8 @@ public class UserRepository {
         Optional<Student> studentOptional = students.isEmpty() ? Optional.empty() : Optional.of(students.get(0));
         if(studentOptional.isPresent()) {
             studentOptional.get().setRole("STUDENT");
+            studentOptional.get().setEmails(getStudentEmails(studentOptional.get().getUsername()));
+            studentOptional.get().setPhoneNos(getStudentPhNos(studentOptional.get().getUsername()));
         }
         return studentOptional;
     }
@@ -104,6 +112,18 @@ public class UserRepository {
         return courses;
     }
 
+    public List<Course> getStudentCourses(String username) {
+        List<String> names = jdbcTemplate.queryForList("SELECT CName FROM Enrollment WHERE username = ?", new Object[]{username}, String.class);
+        List<Course> courses = new ArrayList<>();
+        for(int i = 0; i < names.size(); i++) {
+            List<Course> course = jdbcTemplate.query("SELECT * FROM Course WHERE Name = ?", new Object[]{names.get(i)}, new BeanPropertyRowMapper<>(Course.class));
+            if(!course.isEmpty()) {
+                courses.add(course.get(0));
+            }
+        }
+        return courses;
+    }
+
     public List<Educator> getAllEducators() {
         List<Educator> educators = jdbcTemplate.query("SELECT * FROM Educator", new BeanPropertyRowMapper<>(Educator.class));
         for(int i = 0; i < educators.size(); i++) {
@@ -120,5 +140,66 @@ public class UserRepository {
 
     public List<String> getEducatorFields(String username) {
         return jdbcTemplate.queryForList("SELECT FieldOfExpertise FROM EducatorFieldOExpertise WHERE username = ?", new Object[]{username}, String.class);
+    }
+
+    public List<String> getStudentEmails(String username) {
+        return jdbcTemplate.queryForList("SELECT EmailID FROM StudentEmailIDs WHERE username = ?", new Object[]{username}, String.class);
+    }
+
+    public List<Long> getStudentPhNos(String username) {
+        return jdbcTemplate.queryForList("SELECT PhoneNo FROM StudentPhNos WHERE username = ?", new Object[]{username}, Long.class);
+    }
+
+    public void addTransaction(String sname, Integer id, String cname) {
+        int price = jdbcTemplate.queryForObject("SELECT Price FROM Course WHERE Name = ?", new Object[]{cname}, Integer.class).intValue();
+        jdbcTemplate.update("INSERT INTO Transaction(TransactionAmount, TransactionDate, TrCourseName, TrStudentUserName) VALUES (?,now(),?,?)", price, cname, sname); // for now
+        jdbcTemplate.update("INSERT INTO Enrollment VALUES (?,?,0,0)", cname, sname);
+        jdbcTemplate.update("DELETE FROM Wishlist WHERE CName = ? and username = ?", cname, sname);
+    }
+
+    public List<Course> getWishlistCourses(String username) {
+        List<String> names = jdbcTemplate.queryForList("SELECT CName FROM Wishlist WHERE username = ?", new Object[]{username}, String.class);
+        List<Course> courses = new ArrayList<>();
+        for(int i = 0; i < names.size(); i++) {
+            List<Course> course = jdbcTemplate.query("SELECT * FROM Course WHERE Name = ?", new Object[]{names.get(i)}, new BeanPropertyRowMapper<>(Course.class));
+            if(!course.isEmpty()) {
+                courses.add(course.get(0));
+            }
+        }
+        return courses;
+    }
+
+    public List<Video> getBookmarkedVideos(String username) {
+        List<Pair<Integer,String>> ids = jdbcTemplate.query("SELECT VideoNo, CName FROM VideoBookmarks WHERE username = ?", new Object[]{username}, new RowMapper<Pair<Integer, String>>() {
+            @Override
+            public Pair<Integer, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Pair.of(Integer.valueOf(rs.getInt("VideoNo")),rs.getString("CName"));
+            }
+        });
+        List<Video> videos = new ArrayList<>();
+        for(int i = 0; i < ids.size(); i++) {
+            List<Video> video = jdbcTemplate.query("SELECT * FROM Video WHERE VideoID = ? and CName = ?", new Object[]{ids.get(i).getFirst().intValue(), ids.get(i).getSecond()}, new BeanPropertyRowMapper<>(Video.class));
+            if(!video.isEmpty()) {
+                videos.add(video.get(0));
+            }
+        }
+        return videos;
+    }
+
+    public List<Blog> getBookmarkedBlogs(String username) {
+        List<Pair<Integer,String>> ids = jdbcTemplate.query("SELECT BlogNo, CName FROM BlogBookmarks WHERE username = ?", new Object[]{username}, new RowMapper<Pair<Integer, String>>() {
+            @Override
+            public Pair<Integer, String> mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return Pair.of(Integer.valueOf(rs.getInt("BlogNo")),rs.getString("CName"));
+            }
+        });
+        List<Blog> blogs = new ArrayList<>();
+        for(int i = 0; i < ids.size(); i++) {
+            List<Blog> blog = jdbcTemplate.query("SELECT * FROM Blog WHERE BlogID = ? and CName = ?", new Object[]{ids.get(i).getFirst().intValue(), ids.get(i).getSecond()}, new BeanPropertyRowMapper<>(Blog.class));
+            if(!blog.isEmpty()) {
+                blogs.add(blog.get(0));
+            }
+        }
+        return blogs;
     }
 }

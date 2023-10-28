@@ -35,6 +35,7 @@ Search by course name(Case sensitive):<br>
         <td th:text="${'Rs.' + course.getPrice()}"></td>
         <td th:if="${bools.get(i.index)}"><a th:href="@{/courses/course(index=${i.index})}">Start</a></td>
         <td th:unless="${bools.get(i.index)}"><a th:href="@{/courses/buy(index=${i.index})}">Buy</a></td>
+        <td th:unless="${bools.get(i.index)}"><a th:href="@{/courses/course(index=${i.index}, action='3')}">Add to Wishlist</a></td>
     </tr>
 </table>
 </body>

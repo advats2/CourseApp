@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${student.getFName() + ' ' + student.getLName()}"> Profile</title>
+</head>
+<body>
+<h2>Courses you are enrolled in:</h2>
+<table>
+    <tr>
+        <td>Name</td>
+        <td>Description</td>
+        <td>Category</td>
+        <td>Rating</td>
+        <td>Start</td>
+    </tr>
+    <tr th:each="course,i : ${courses}">
+        <td th:text="${course.getName()}"></td>
+        <td th:text="${course.getDescription()}"></td>
+        <td th:text="${course.getCategory()}"></td>
+        <td th:text="${course.getRating() != 0} ? ${course.getRating()} : 'Unrated'"></td>
+        <td><a th:href="@{/courses/course(index=${i.index})}">Visit</a></td>
+    </tr>
+</table>
+<h2>Courses in your wishlist:</h2>
+<table>
+    <tr>
+        <td>Name</td>
+        <td>Description</td>
+        <td>Category</td>
+        <td>Rating</td>
+        <td>Price</td>
+        <td>Buy</td>
+    </tr>
+    <tr th:each="wcourse,i : ${wcourses}">
+        <td th:text="${wcourse.getName()}"></td>
+        <td th:text="${wcourse.getDescription()}"></td>
+        <td th:text="${wcourse.getCategory()}"></td>
+        <td th:text="${wcourse.getRating() != 0} ? ${course.getRating()} : 'Unrated'"></td>
+        <td th:text="${wcourse.getPrice()}"></td>
+        <td><a th:href="@{/courses/buy(index=${i.index})}">Buy</a></td>
+    </tr>
+</table>
+<h2  th:if="${!bvs.isEmpty()}">Bookmarked Videos:</h2>
+<table th:if="${!bvs.isEmpty()}">
+    <tr th:each="bv : ${bvs}">
+        <td><img th:alt="${'Thumbnail for video ' + bv.getVideoID()}" th:src="${bv.getThumbnailLink()}"></td>
+        <td th:text="${bv.getTitle()}?: 'No Title'"></td>
+        <td><a th:href="@{/courses/video(cname=${bv.getCName()}, id=${bv.getVideoID()})}">Watch</a></td>
+    </tr>
+</table>
+<h2  th:if="${!bbs.isEmpty()}">Bookmarked Blogs:</h2>
+<table th:if="${!bbs.isEmpty()}">
+    <tr th:each="bb : ${bbs}">
+        <td th:text="${bb.getTitle()}?: 'No Title'"></td>
+        <td><a th:href="@{/courses/blog(cname=${bb.getCName()}, id=${bb.getBlogID()})}">Read</a></td>
+    </tr>
+</table>
+</body>
+</html>

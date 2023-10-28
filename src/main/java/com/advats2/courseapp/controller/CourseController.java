@@ -1,8 +1,6 @@
 package com.advats2.courseapp.controller;
 
-import com.advats2.courseapp.model.Course;
-import com.advats2.courseapp.model.Educator;
-import com.advats2.courseapp.model.User;
+import com.advats2.courseapp.model.*;
 import com.advats2.courseapp.model.repository.CourseRepository;
 import com.advats2.courseapp.model.repository.UserRepository;
 import org.springframework.stereotype.Controller;
@@ -81,12 +79,16 @@ public class CourseController {
             return "redirect:/login";
         }
         if(Objects.equals(user.getRole(), "STUDENT") && !(courseRepository.isEnrolled(courses.get(index).getName(),user.getUsername()))) {
+            if(action == 3) {
+                courseRepository.addWishlist(user.getUsername(), courses.get(index).getName());
+                return "redirect:/courses";
+            }
             return "redirect:/login";
         }
         if(courses.size() == 0) {
             return "redirect:/courses";
         }
-        if(action == 1) {
+        if(action == 1 && ename == null) {
             if(Objects.equals(user.getRole(), "STUDENT")) {
                 return "redirect:/login";
             }
@@ -103,7 +105,7 @@ public class CourseController {
             courseRepository.removeCourse(courses.get(index).getName());
             return "redirect:/courses";
         }
-        if(ename != null) {
+        if(action == 1 && ename != null) {
             if(Objects.equals(user.getRole(), "STUDENT")) {
                 return "redirect:/login";
             }
@@ -122,21 +124,55 @@ public class CourseController {
             return "redirect:/login";
         }
         List<Course> courses = courseRepository.getAll();
-        index = min(index, courses.size()-1);
-        index = max(index, 0);
+        if(index < 0 || index >= courses.size()) {
+            return "redirect:/error";
+        }
         User user = userRepository.findUser(principal.getName()).get();
-        if(user.getRole() == "EDUCATOR" && (courses.get(index).getTeachers().contains(userRepository.findEducator(user.getUsername()).get()))) {
+        if(Objects.equals(user.getRole(), "ADMIN")) {
             return "redirect:/courses/course?index="+index;
         }
-        if(user.getRole() == "STUDENT" && (courseRepository.isEnrolled(courses.get(index).getName(),user.getUsername()))) {
+        if(Objects.equals(user.getRole(), "EDUCATOR") && (courses.get(index).getTeachers().contains(userRepository.findEducator(user.getUsername()).get()))) {
             return "redirect:/courses/course?index="+index;
         }
+        if(Objects.equals(user.getRole(), "EDUCATOR")) {
+            return "redirect:/login";
+        }
+        if(Objects.equals(user.getRole(), "STUDENT") && (courseRepository.isEnrolled(courses.get(index).getName(),user.getUsername()))) {
+            return "redirect:/courses/course?index="+index;
+        }
+        model.addAttribute("index", index);
         model.addAttribute("course", courses.get(index));
         return "course_buy";
     }
 
+    @PostMapping("/buy")
+    public String buyCoursePost(@RequestParam(value = "TransactionID", defaultValue = "1") Integer id, Principal principal, @RequestParam("index") int index) {
+        if(principal == null) {
+            return "redirect:/login";
+        }
+        List<Course> courses = courseRepository.getAll();
+        if(index < 0 || index >= courses.size()) {
+            return "/error";
+        }
+        User user = userRepository.findUser(principal.getName()).get();
+        if(Objects.equals(user.getRole(), "ADMIN")) {
+            return "redirect:/courses/course?index="+index;
+        }
+        if(Objects.equals(user.getRole(), "EDUCATOR") && (courses.get(index).getTeachers().contains(userRepository.findEducator(user.getUsername()).get()))) {
+            return "redirect:/courses/course?index="+index;
+        }
+        if(Objects.equals(user.getRole(), "EDUCATOR")) {
+            return "redirect:/login";
+        }
+        if(Objects.equals(user.getRole(), "STUDENT") && (courseRepository.isEnrolled(courses.get(index).getName(),user.getUsername()))) {
+            return "redirect:/courses/course?index="+index;
+        }
+        userRepository.addTransaction(user.getUsername(), id.intValue(), courses.get(index).getName());
+        return "redirect:/courses/course?index=" + index;
+    }
+
     @PostMapping("/category")
-    public String categoryCourses(@ModelAttribute("category") String category, Model model, Principal principal) {
+    public String categoryCourses(@RequestParam("category") String category, Model model, Principal principal) {
         List<Course> catcourses = new ArrayList<>();
         List<Course> courses = courseRepository.getAll();
         for(int i = 0; i < courses.size(); i++) {
@@ -259,7 +295,7 @@ public class CourseController {
     }
 
     @GetMapping("/video")
-    public String videoPlayer(@RequestParam("cname") String cname, @RequestParam("id") Integer id, Model model, Principal principal) {
+    public String videoPlayer(@RequestParam("cname") String cname, @RequestParam("id") Integer id, Model model, Principal principal, @RequestParam(value = "action", defaultValue = "0") Integer action, @RequestParam(value = "pid", required = false) Integer pid, @RequestParam(value = "cid", required = false) Integer cid) {
         if(principal == null) {
             return "redirect:/login";
         }
@@ -277,13 +313,68 @@ public class CourseController {
                 }
                 break;
         }
+        Optional<Video> videoOptional = courseRepository.findVideo(cname, id.intValue());
+        if(!videoOptional.isPresent()) {
+            return "redirect:/error";
+        }
+        if(action == 1) {
+            if(!user.getRole().equals("STUDENT")) {
+                return "redirect:/courses/video?cname=" + cname + "&id=" + id;
+            }
+            courseRepository.addVideoBookmark(user.getUsername(), cname, id);
+        }
+        if(cid != null) {
+            if(action == 2) {
+                courseRepository.incrementLikes(cid.intValue());
+            }
+        }
+        List<Comment> comments = courseRepository.getRootComments(cname, id, 0);
+        model.addAttribute("role", user.getRole());
+        model.addAttribute("username", user.getUsername());
         model.addAttribute("cname", cname);
         model.addAttribute("id", id);
+        model.addAttribute("comments", comments);
+        if(pid != null) {
+            List<Comment> replies = courseRepository.getReplies(pid.intValue());
+            model.addAttribute("replies", replies);
+            model.addAttribute("pid", pid.intValue());
+        }
+        model.addAttribute("video", videoOptional.get());
+        courseRepository.incrementViews(cname, id.intValue(), 0);
         return "video";
     }
 
+    @PostMapping("/video")
+    public String videoPost(@RequestParam("cname") String cname, @RequestParam("id") Integer id, @RequestParam(value = "cbody", required = false) String cbody, @RequestParam(value = "cid", required = false) Integer cid, @RequestParam(value = "sname", required = false) String sname, Principal principal, @RequestParam(value = "rating", required = false) Integer rating) {
+        if(principal == null) {
+            return "redirect:/login";
+        }
+        User user = userRepository.findUser(principal.getName()).get();
+        if(!user.getRole().equals("STUDENT")) {
+            return "redirect:/login";
+        }
+        if(!courseRepository.isEnrolled(cname, user.getUsername())) {
+            return "redirect:/login";
+        }
+        if(rating != null) {
+            if(rating <= 0 || rating > 5) {
+                return "redirect:/courses/video?cname=" + cname + "&id=" + id;
+            }
+            courseRepository.rate(cname, id.intValue(), sname, rating.intValue(),0);
+            return "redirect:/courses/video?cname=" + cname + "&id=" + id;
+        }
+        if(cid != null) {
+            courseRepository.addReply(cname, id.intValue(), sname, cbody, cid.intValue(), 0);
+            return "redirect:/courses/video?cname=" + cname + "&id=" + id;
+        }
+        else {
+            courseRepository.addComment(cname, id.intValue(), sname, cbody,0);
+            return "redirect:/courses/video?cname=" + cname + "&id=" + id;
+        }
+    }
+
     @GetMapping("/blog")
-    public String blogReader(@RequestParam("cname") String cname, @RequestParam("id") Integer id, Model model, Principal principal) {
+    public String blogReader(@RequestParam("cname") String cname, @RequestParam("id") Integer id, Model model, Principal principal, @RequestParam(value = "action", defaultValue = "0") Integer action, @RequestParam(value = "pid", required = false) Integer pid, @RequestParam(value = "cid", required = false) Integer cid) {
         if(principal == null) {
             return "redirect:/login";
         }
@@ -301,8 +392,63 @@ public class CourseController {
                 }
                 break;
         }
+        Optional<Blog> blogOptional = courseRepository.findBlog(cname, id.intValue());
+        if(!blogOptional.isPresent()) {
+            return "redirect:/error";
+        }
+        if(action == 1) {
+            if(!user.getRole().equals("STUDENT")) {
+                return "redirect:/courses/blog?cname=" + cname + "&id=" + id;
+            }
+            courseRepository.addBlogBookmark(user.getUsername(), cname, id);
+        }
+        if(cid != null) {
+            if(action == 2) {
+                courseRepository.incrementLikes(cid.intValue());
+            }
+        }
+        List<Comment> comments = courseRepository.getRootComments(cname, id, 1);
+        model.addAttribute("role", user.getRole());
+        model.addAttribute("username", user.getUsername());
         model.addAttribute("cname", cname);
         model.addAttribute("id", id);
+        model.addAttribute("comments", comments);
+        if(pid != null) {
+            List<Comment> replies = courseRepository.getReplies(pid.intValue());
+            model.addAttribute("replies", replies);
+            model.addAttribute("pid", pid.intValue());
+        }
+        model.addAttribute("blog", blogOptional.get());
+        courseRepository.incrementViews(cname, id.intValue(), 1);
         return "blog";
+    }
+
+    @PostMapping("/blog")
+    public String blogPost(@RequestParam("cname") String cname, @RequestParam("id") Integer id, @RequestParam(value = "cbody", required = false) String cbody, @RequestParam(value = "cid", required = false) Integer cid, @RequestParam(value = "sname") String sname, Principal principal, @RequestParam(value = "rating", required = false) Integer rating) {
+        if(principal == null) {
+            return "redirect:/login";
+        }
+        User user = userRepository.findUser(principal.getName()).get();
+        if(!user.getRole().equals("STUDENT")) {
+            return "redirect:/login";
+        }
+        if(!courseRepository.isEnrolled(cname, user.getUsername())) {
+            return "redirect:/login";
+        }
+        if(rating != null) {
+            if(rating <= 0 || rating > 5) {
+                return "redirect:/courses/blog?cname=" + cname + "&id=" + id;
+            }
+            courseRepository.rate(cname, id.intValue(), sname, rating.intValue(),1);
+            return "redirect:/courses/blog?cname=" + cname + "&id=" + id;
+        }
+        if(cid != null) {
+            courseRepository.addReply(cname, id.intValue(), sname, cbody, cid.intValue(), 1);
+            return "redirect:/courses/blog?cname=" + cname + "&id=" + id;
+        }
+        else {
+            courseRepository.addComment(cname, id.intValue(), sname, cbody,1);
+            return "redirect:/courses/blog?cname=" + cname + "&id=" + id;
+        }
     }
 }

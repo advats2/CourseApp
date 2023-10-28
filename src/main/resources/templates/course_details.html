@@ -8,6 +8,8 @@
 <table>
     <tr>
         <td th:unless="${role.equals('STUDENT')}"><a th:href="@{/courses/course(index=${index}, action='1')}">Add a teacher for this course</a></td>
+        <td th:if="${role.equals('EDUCATOR')}"><a th:href="@{/educator/newvideo(index=${index})}">Add a video</a></td>
+        <td th:if="${role.equals('EDUCATOR')}"><a th:href="@{/educator/newblog(index=${index})}">Add a Blog</a></td>
         <td th:if="${role.equals('ADMIN')}"><a th:href="@{/courses/course(index=${index}, action='2')}">Remove this course</a></td>
     </tr>
 </table>
@@ -41,7 +43,7 @@
 <p th:unless="${course.getVideos().isEmpty()}">Videos</p>
 <table th:if="${!course.getVideos().isEmpty()}">
     <tr th:each="video : ${course.getVideos()}">
-        <td><img th:alt="${'Thumbnail for video ' + video.getVideoID()}" th:src="${video.getThumbnailLink()}"></td>
+        <td><img width="100" height="100" th:alt="${'Thumbnail for video ' + video.getVideoID()}" th:src="'/upload/thumbnail/' + ${video.getThumbnailLink()}"></td>
         <td th:text="${video.getTitle()}?: 'No Title'"></td>
         <td><a th:href="@{/courses/video(cname=${course.getName()}, id=${video.getVideoID()})}">Watch</a></td>
     </tr>

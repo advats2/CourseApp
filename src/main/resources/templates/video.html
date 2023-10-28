@@ -2,9 +2,100 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Video</title>
+    <title th:text="${'Video ' + video.getVideoID() + ' of course ' + video.getCName()}"></title>
+    <style>
+        td {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-<p th:text="${cname + id}"></p>
+<h1 th:text="${video.getTitle()}"></h1>
+Rating : <span th:text="${video.getRating()}"></span><br>
+Views : <span th:text="${video.getViews()}"></span><br>
+Upload Date : <span th:text="${video.getUploadDate()}"></span><br>
+Description : <span th:text="${video.getDescription()}"></span><br>
+<video width="500" height="500" controls>
+    <source th:src="${'/upload/video/' + video.getLink()}" type="video/mp4">
+</video>
+<button th:if="${role.equals('STUDENT')}" onclick="rate()">Rate this video</button>
+<form id="rate" style="display: none" th:action="@{/courses/video(cname=${cname}, id=${id}, sname=${username})}" method="post">
+    <input type="radio" name="rating" value="1"> 1 Star
+    <input type="radio" name="rating" value="2"> 2 Star
+    <input type="radio" name="rating" value="3"> 3 Star
+    <input type="radio" name="rating" value="4"> 4 Star
+    <input type="radio" name="rating" value="5"> 5 Star<br>
+    <button type="submit">Rate</button>
+</form>
+<a th:if="${role.equals('STUDENT')}" th:href="@{/courses/video(cname=${cname}, id=${id}, action='1')}">Bookmark this video</a><br>
+<button th:if="${role.equals('STUDENT')}" onclick="comment()">Comment</button>
+<table th:each="comment : ${comments}">
+    <tr>
+        <td th:text="${comment.getSusername()}"></td>
+        <td rowspan="3" th:text="${comment.getBody()}" colspan="5"></td>
+        <td><a th:href="@{/courses/video(cname=${cname}, id=${id}, pid=${comment.getCommentID()}, sname=${username})}">Replies</a></td>
+    </tr>
+    <tr>
+        <td th:text="${comment.getCommentLikes()}"> Likes</td>
+        <td><a th:href="@{/courses/video(cname=${cname}, id=${id}, cid=${comment.getCommentID()}, sname=${username}, action='2')}">Like</a></td>
+    </tr>
+    <tr>
+        <td th:text="${comment.getPostedDate()}"></td>
+        <td><button th:if="${role.equals('STUDENT')}" th:attr="onclick=${'reply('+ comment.getCommentID() + ')'}" type="button">Reply</button></td>
+    </tr>
+    <tr th:if="${comment.getCommentID().equals(pid) && !replies.isEmpty()}">
+        <td colspan="1"></td>
+        <td colspan="6">
+            <table th:each="reply : ${replies}">
+                <tr>
+                    <td th:text="${reply.getSusername()}"></td>
+                    <td rowspan="3" th:text="${reply.getBody()}"></td>
+                </tr>
+                <tr>
+                    <td th:text="${reply.getCommentLikes()}"> Likes</td>
+                    <td><a th:href="@{/courses/video(cname=${cname}, id=${id}, cid=${reply.getCommentID()}, sname=${username}, action='2')}">Like</a></td>
+                </tr>
+                <tr>
+                    <td th:text="${reply.getPostedDate()}"></td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<form id="form0" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/courses/video(cname=${cname}, id=${id}, sname=${username})}" method="post">
+    <input type="text" id="cbody0" name="cbody" required><br>
+    <br>
+    <button type="submit">Comment</button>
+    <button onclick="Close()" type="button">Cancel</button>
+</form>
+<form id="form" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/courses/video(cname=${cname}, id=${id}, sname=${username})}" method="post">
+    <input type="text" id="cbody" name="cbody" required><br>
+    <input type="number" id="cid" name="cid" style="display: none" required><br>
+    <button type="submit">Reply</button>
+    <button onclick="closereply()" type="button">Cancel</button>
+</form>
+<script>
+    function rate() {
+        document.getElementById("rate").style.display = "block";
+    }
+    function reply(commid) {
+        Close();
+        document.getElementById("form").style.display = "block";
+        document.getElementById("cid").value = commid;
+    }
+    function closereply() {
+        document.getElementById("cbody").value = "";
+        document.getElementById("cid").value = "";
+        document.getElementById("form").style.display = "none";
+    }
+    function comment() {
+        closereply();
+        document.getElementById("form0").style.display = "block";
+    }
+    function Close() {
+        document.getElementById("cbody0").value = "";
+        document.getElementById("form0").style.display = "none";
+    }
+</script>
 </body>
 </html>

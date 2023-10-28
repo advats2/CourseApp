@@ -94,6 +94,22 @@ public class Student extends User {
         this.DOB = DOB;
     }
 
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
+    }
+
+    public List<Long> getPhoneNos() {
+        return PhoneNos;
+    }
+
+    public void setPhoneNos(List<Long> phoneNos) {
+        PhoneNos = phoneNos;
+    }
+
     @Override
     public int hashCode() {
         return getUsername().hashCode();

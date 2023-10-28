@@ -11,7 +11,6 @@ public class Video {
     private String Link;
     private int Views;
     private String Description;
-    private int Duration;
     private String Title;
     private Date UploadDate;
 
@@ -69,14 +68,6 @@ public class Video {
 
     public void setDescription(String description) {
         Description = description;
-    }
-
-    public int getDuration() {
-        return Duration;
-    }
-
-    public void setDuration(int duration) {
-        Duration = duration;
     }
 
     public String getTitle() {

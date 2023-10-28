@@ -39,7 +39,7 @@ public class AppSecurity {
                 .authorizeHttpRequests( auth -> auth
                         .requestMatchers("/","/register/STUDENT/**","/register/EDUCATOR/**","/register/**", "/login/**", "/courses/**", "/educators/**").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/user").hasRole("STUDENT")
+                        .requestMatchers("/student/**").hasRole("STUDENT")
                         .requestMatchers("/educator/**").hasAnyRole("EDUCATOR","ADMIN")
                         .requestMatchers("/educator").hasRole("EDUCATOR")
                         .anyRequest().authenticated()

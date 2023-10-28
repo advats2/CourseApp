@@ -5,6 +5,8 @@
     <title>Buy Course</title>
 </head>
 <body>
-<span th:text="${course.toString()}"></span>
+<form th:action="@{/courses/buy(index=${index})}" method="post">
+    <button type="submit">BUY</button>
+</form>
 </body>
 </html>

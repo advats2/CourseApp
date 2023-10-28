@@ -24,7 +24,7 @@
         <td th:text="${educator.getUniversity()}"></td>
         <td th:unless="${(educator.getEmails() == null) || educator.getEmails().isEmpty()}" th:text="${educator.getEmails().get(0)}"></td>
         <td th:if="${(educator.getEmails() == null) || educator.getEmails().isEmpty()}"></td>
-        <td th:if="${action == 1}"><a th:href="@{/courses/course(index=${index}, ename=${educator.getUsername()})}">ADD</a></td>
+        <td th:if="${action == 1}"><a th:href="@{/courses/course(index=${index}, action='1', ename=${educator.getUsername()})}">ADD</a></td>
     </tr>
 </table>
 </body>

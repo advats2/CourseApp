@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Video</title>
+</head>
+<body>
+<form th:action="@{/educator/uploadvideo(index=${index})}" method="post" enctype="multipart/form-data">
+    Title: <input type="text" name="title"><br>
+    Description: <input type="text" name="description"><br>
+    Upload video (only mp4 supported): <input type="file" name="videofile" accept="video/mp4"><br>
+    Upload thumbnail image: <input type="file" name="thumbnailfile" accept="image/*">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
