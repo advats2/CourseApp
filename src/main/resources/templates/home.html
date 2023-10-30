@@ -6,7 +6,11 @@
 </head>
 <body>
 <h1>Welcome to DigiCourse!</h1><br>
-<a href="/login">Login</a>
+<a th:unless="${auth}" href="/login">Login</a>
+<a th:if="${auth}" href="/logout">Logout</a>
 <a href="/register">Register</a>
+<a href="/courses">Courses</a>
+<a href="/educators">Educators</a>
+<a th:if="${auth}" th:href="@{/{profile}(profile=${role.toLowerCase()})}">Profile</a>
 </body>
 </html>

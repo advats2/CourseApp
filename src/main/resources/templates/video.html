@@ -10,6 +10,8 @@
     </style>
 </head>
 <body>
+<a th:href="@{/}">Home</a>
+<a href="/logout">Logout</a><br>
 <h1 th:text="${video.getTitle()}"></h1>
 Rating : <span th:text="${video.getRating()}"></span><br>
 Views : <span th:text="${video.getViews()}"></span><br>
@@ -28,7 +30,9 @@ Description : <span th:text="${video.getDescription()}"></span><br>
     <button type="submit">Rate</button>
 </form>
 <a th:if="${role.equals('STUDENT')}" th:href="@{/courses/video(cname=${cname}, id=${id}, action='1')}">Bookmark this video</a><br>
-<button th:if="${role.equals('STUDENT')}" onclick="comment()">Comment</button>
+<button th:if="${role.equals('STUDENT')}" onclick="comment()">Comment</button><br>
+<h2>Comments</h2>
+<h3 th:if="${comments.isEmpty()}">No Comments</h3>
 <table th:each="comment : ${comments}">
     <tr>
         <td th:text="${comment.getSusername()}"></td>

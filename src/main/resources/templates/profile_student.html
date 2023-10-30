@@ -5,6 +5,48 @@
     <title th:text="${student.getFName() + ' ' + student.getLName()}"> Profile</title>
 </head>
 <body>
+<a th:href="@{/}">Home</a>
+<a href="/logout">Logout</a><br>
+<table>
+    <tr>
+        <td>Name : </td>
+        <td th:text="${student.getFName() + ' ' + student.getLName()}"></td>
+    </tr>
+    <tr>
+        <td>Age : </td>
+        <td th:text="${student.getAge()}"></td>
+    </tr>
+    <tr>
+        <td>User Name : </td>
+        <td th:text="${student.getUsername()}"></td>
+    </tr>
+    <tr>
+        <td>Emails : </td>
+        <td><span th:each="email : ${student.getEmails()}" th:text="${email + ', '}"></span></td>
+        <td><button onclick="semail()" type="button">Add Email</button></td>
+    </tr>
+    <tr>
+        <td>Phone Nos : </td>
+        <td><span th:each="pno : ${student.getPhoneNos()}" th:text="${pno + ', '}"></span></td>
+        <td><button onclick="pno()" type="button">Add Phone No</button></td>
+    </tr>
+    <tr>
+        <td>College : </td>
+        <td th:text="${student.getCollege()}"></td>
+    </tr>
+    <tr>
+        <td>Degree : </td>
+        <td th:text="${student.getDegree() + ', ' + student.getSpecialisation()}"></td>
+    </tr>
+    <tr>
+        <td>DOB : </td>
+        <td th:text="${student.getDOB()}"></td>
+    </tr>
+    <tr>
+        <td>Address : </td>
+        <td th:text="${student.getCity() + ', ' + student.getState() + ', Pincode - ' + student.getPincode()}"></td>
+    </tr>
+</table>
 <h2>Courses you are enrolled in:</h2>
 <table>
     <tr>
@@ -44,7 +86,7 @@
 <h2  th:if="${!bvs.isEmpty()}">Bookmarked Videos:</h2>
 <table th:if="${!bvs.isEmpty()}">
     <tr th:each="bv : ${bvs}">
-        <td><img th:alt="${'Thumbnail for video ' + bv.getVideoID()}" th:src="${bv.getThumbnailLink()}"></td>
+        <td><img width="100" height="100" th:alt="${'Thumbnail for video ' + bv.getVideoID()}" th:src="'/upload/thumbnail/' + ${bv.getThumbnailLink()}"></td>
         <td th:text="${bv.getTitle()}?: 'No Title'"></td>
         <td><a th:href="@{/courses/video(cname=${bv.getCName()}, id=${bv.getVideoID()})}">Watch</a></td>
     </tr>
@@ -56,5 +98,35 @@
         <td><a th:href="@{/courses/blog(cname=${bb.getCName()}, id=${bb.getBlogID()})}">Read</a></td>
     </tr>
 </table>
+<form id="sform0" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/student}" method="post">
+    <input type="email" id="semail" name="email" required><br>
+    <br>
+    <button type="submit">Add</button>
+    <button onclick="scloseemail()" type="button">Cancel</button>
+</form>
+<form id="sform1" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/student}" method="post">
+    <input type="number" id="pno" name="pno" required><br>
+    <br>
+    <button type="submit">Add</button>
+    <button onclick="closepno()" type="button">Cancel</button>
+</form>
+<script>
+    function semail() {
+        closepno();
+        document.getElementById("sform0").style.display = "block";
+    }
+    function pno() {
+        scloseemail();
+        document.getElementById("sform1").style.display = "block";
+    }
+    function closepno() {
+        document.getElementById("pno").value = "";
+        document.getElementById("sform1").style.display = "none";
+    }
+    function scloseemail() {
+        document.getElementById("semail").value = "";
+        document.getElementById("sform0").style.display = "none";
+    }
+</script>
 </body>
 </html>

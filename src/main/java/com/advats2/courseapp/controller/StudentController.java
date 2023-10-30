@@ -8,8 +8,11 @@ import com.advats2.courseapp.model.repository.UserRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 
@@ -36,5 +39,16 @@ public class StudentController {
         model.addAttribute("bvs", bvs);
         model.addAttribute("bbs", bbs);
         return "profile_student";
+    }
+
+    @PostMapping("")
+    public String educatorPost(Principal principal, @RequestParam(value = "pno", required = false) BigDecimal pno, @RequestParam(value = "email", required = false) String email) {
+        if(pno != null) {
+            userRepository.addStudentPno(principal.getName(), pno);
+        }
+        if(email != null) {
+            userRepository.addStudentEmail(principal.getName(), email);
+        }
+        return "redirect:/student";
     }
 }

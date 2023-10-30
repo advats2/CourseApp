@@ -5,7 +5,44 @@
     <title th:text="${educator.getFName() + educator.getLName()}"> Profile</title>
 </head>
 <body>
-
+<a th:href="@{/}">Home</a>
+<a href="/logout">Logout</a><br>
+<table>
+    <tr>
+        <td>Name : </td>
+        <td th:text="${educator.getFName() + educator.getLName()}"></td>
+    </tr>
+    <tr>
+        <td>Gender : </td>
+        <td th:text="${(educator.getGender().toLowerCase().equals('male')) ? 'MALE' : 'FEMALE'}"></td>
+    </tr>
+    <tr>
+        <td>User Name : </td>
+        <td th:text="${educator.getUsername()}"></td>
+    </tr>
+    <tr>
+        <td>Emails : </td>
+        <td><span th:each="email : ${educator.getEmails()}" th:text="${email + ', '}"></span></td>
+        <td><button onclick="email()" type="button">Add Email</button></td>
+    </tr>
+    <tr>
+        <td>FOE : </td>
+        <td><span th:each="foe : ${educator.getFields()}" th:text="${foe + ', '}"></span></td>
+        <td><button onclick="foe()" type="button"> Add FOE</button></td>
+    </tr>
+    <tr>
+        <td>University : </td>
+        <td th:text="${educator.getUniversity()}"></td>
+    </tr>
+    <tr>
+        <td>Degree : </td>
+        <td th:text="${educator.getDegree() + ', ' + educator.getYear()}"></td>
+    </tr>
+    <tr>
+        <td>About : </td>
+        <td th:text="${educator.getAbout()}"></td>
+    </tr>
+</table>
 <h2>Courses taught by you:</h2>
 <table>
     <tr>
@@ -25,6 +62,36 @@
         <td><a th:href="@{/courses/course(index=${i.index})}">Visit</a></td>
     </tr>
 </table>
-<a href="/courses/new">Add a new Course</a>
+<a href="/courses/new">Add a new Course</a><br>
+<form id="form0" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/educator}" method="post">
+    <input type="email" id="email" name="email" required><br>
+    <br>
+    <button type="submit">Add</button>
+    <button onclick="closeemail()" type="button">Cancel</button>
+</form>
+<form id="form1" style="display: none; position: fixed; bottom: 0; z-index: 9;" th:action="@{/educator}" method="post">
+    <input type="text" id="foe" name="foe" required><br>
+    <br>
+    <button type="submit">Add</button>
+    <button onclick="closefoe()" type="button">Cancel</button>
+</form>
+<script>
+    function email() {
+        closefoe();
+        document.getElementById("form0").style.display = "block";
+    }
+    function foe() {
+        closeemail();
+        document.getElementById("form1").style.display = "block";
+    }
+    function closefoe() {
+        document.getElementById("foe").value = "";
+        document.getElementById("form1").style.display = "none";
+    }
+    function closeemail() {
+        document.getElementById("email").value = "";
+        document.getElementById("form0").style.display = "none";
+    }
+</script>
 </body>
 </html>

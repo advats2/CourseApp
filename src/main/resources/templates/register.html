@@ -5,6 +5,7 @@
     <title>Register</title>
 </head>
 <body>
+<a th:href="@{/}">Home</a><br>
 <form th:action="@{/register}" th:method="post" th:object="${user}">
     Register As:
     <select name="role" th:field="*{role}">

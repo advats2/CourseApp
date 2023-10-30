@@ -32,11 +32,14 @@ public class CourseController {
         List<Course> courses = courseRepository.getAll();
         String username = "ANONYMOUS";
         String role = "ANONYMOUS";
+        boolean auth = false;
         if(principal != null) {
+            auth = true;
             username = principal.getName();
             User user = userRepository.findUser(principal.getName()).get();
             role = user.getRole();
         }
+        model.addAttribute("auth", auth);
         List<Boolean> bools = new ArrayList<>();
         switch (role) {
             case "ANONYMOUS":
@@ -182,11 +185,14 @@ public class CourseController {
         }
         String username = "ANONYMOUS";
         String role = "ANONYMOUS";
+        boolean auth = false;
         if(principal != null) {
+            auth = true;
             username = principal.getName();
             User user = userRepository.findUser(principal.getName()).get();
             role = user.getRole();
         }
+        model.addAttribute("auth", auth);
         List<Boolean> bools = new ArrayList<>();
         switch (role) {
             case "ANONYMOUS":
@@ -227,11 +233,14 @@ public class CourseController {
         }
         String username = "ANONYMOUS";
         String role = "ANONYMOUS";
+        boolean auth = false;
         if(principal != null) {
+            auth = true;
             username = principal.getName();
             User user = userRepository.findUser(principal.getName()).get();
             role = user.getRole();
         }
+        model.addAttribute("auth", auth);
         List<Boolean> bools = new ArrayList<>();
         switch (role) {
             case "ANONYMOUS":

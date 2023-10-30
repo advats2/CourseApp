@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @Controller
@@ -21,7 +22,14 @@ public class AppController {
     }
 
     @RequestMapping("/")
-    public String home() {
+    public String home(Principal principal, Model model) {
+        boolean auth = false;
+        if(principal != null) {
+            auth = true;
+            User user = userRepository.findUser(principal.getName()).get();
+            model.addAttribute("role", user.getRole());
+        }
+        model.addAttribute("auth", auth);
         return "home";
     }
 
@@ -31,14 +39,13 @@ public class AppController {
         return "login";
     }
 
-    @GetMapping("/user")
-    @ResponseBody
-    public String user() {
-        return "you are student";
-    }
-
     @GetMapping("/educators")
-    public String allEducators(Model model) {
+    public String allEducators(Model model, Principal principal) {
+        boolean auth = false;
+        if(principal != null) {
+            auth = true;
+        }
+        model.addAttribute("auth", auth);
         List<Educator> educators = userRepository.getAllEducators();
         model.addAttribute("educators", educators);
         return "educators";

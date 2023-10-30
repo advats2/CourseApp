@@ -5,6 +5,7 @@
     <title>Add Video</title>
 </head>
 <body>
+<a th:href="@{/}">Home</a><br>
 <form th:action="@{/educator/uploadvideo(index=${index})}" method="post" enctype="multipart/form-data">
     Title: <input type="text" name="title"><br>
     Description: <input type="text" name="description"><br>

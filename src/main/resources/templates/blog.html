@@ -10,6 +10,7 @@
     </style>
 </head>
 <body>
+<a href="/logout">Logout</a> <a th:href="@{/}">Home</a><br>
 <h1 th:text="${blog.getTitle()}"></h1>
 Rating : <span th:text="${(blog.getRating() != 0)} ? ${blog.getRating()} : 'Unrated'"></span><br>
 Views : <span th:text="${blog.getViews()}"></span><br>
@@ -25,7 +26,9 @@ Creation Date : <span th:text="${blog.getCreatedDate()}"></span><br>
     <button type="submit">Rate</button>
 </form>
 <a th:if="${role.equals('STUDENT')}" th:href="@{/courses/blog(cname=${cname}, id=${id}, action='1')}">Bookmark this blog</a><br>
-<button th:if="${role.equals('STUDENT')}" onclick="comment()">Comment</button>
+<button th:if="${role.equals('STUDENT')}" onclick="comment()">Comment</button><br>
+<h2>Comments</h2>
+<h3 th:if="${comments.isEmpty()}">No Comments</h3>
 <table th:each="comment : ${comments}">
     <tr>
         <td th:text="${comment.getSusername()}"></td>

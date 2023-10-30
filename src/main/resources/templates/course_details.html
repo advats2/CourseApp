@@ -5,6 +5,7 @@
     <title>Course Details</title>
 </head>
 <body>
+<a href="/logout">Logout</a> <a th:href="@{/}">Home</a><br>
 <table>
     <tr>
         <td th:unless="${role.equals('STUDENT')}"><a th:href="@{/courses/course(index=${index}, action='1')}">Add a teacher for this course</a></td>
@@ -39,8 +40,8 @@
         <td><span th:each="teacher : *{teachers}" th:text="${teacher.getFName() + ' ' + teacher.getLName() + ', '}"></span></td>
     </tr>
 </table>
-<p th:if="${course.getVideos().isEmpty()}">No Videos</p>
-<p th:unless="${course.getVideos().isEmpty()}">Videos</p>
+<h2>Videos</h2>
+<h3 th:if="${course.getVideos().isEmpty()}">No Videos</h3>
 <table th:if="${!course.getVideos().isEmpty()}">
     <tr th:each="video : ${course.getVideos()}">
         <td><img width="100" height="100" th:alt="${'Thumbnail for video ' + video.getVideoID()}" th:src="'/upload/thumbnail/' + ${video.getThumbnailLink()}"></td>
@@ -48,8 +49,8 @@
         <td><a th:href="@{/courses/video(cname=${course.getName()}, id=${video.getVideoID()})}">Watch</a></td>
     </tr>
 </table>
-<p th:if="${course.getBlogs().isEmpty()}">No Blogs</p>
-<p th:unless="${course.getBlogs().isEmpty()}">Blogs</p>
+<h2>Blogs</h2>
+<h3 th:if="${course.getBlogs().isEmpty()}">No Blogs</h3>
 <table th:if="${!course.getBlogs().isEmpty()}">
     <tr th:each="blog : ${course.getBlogs()}">
         <td th:text="${blog.getTitle()}?: 'No Title'"></td>

@@ -5,6 +5,7 @@
     <title>Add Blog</title>
 </head>
 <body>
+<a th:href="@{/}">Home</a><br>
 <form th:action="@{/educator/uploadblog(index=${index})}" method="post">
     Title: <input type="text" name="title"><br>
     Content: <textarea name="content" rows="8" cols="80"></textarea><br>

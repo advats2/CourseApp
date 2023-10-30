@@ -49,6 +49,17 @@ public class EducatorController {
         return "profile_educator";
     }
 
+    @PostMapping("")
+    public String educatorPost(Principal principal, @RequestParam(value = "foe", required = false) String foe, @RequestParam(value = "email", required = false) String email) {
+        if(foe != null) {
+            userRepository.addEducatorFOE(principal.getName(), foe);
+        }
+        if(email != null) {
+            userRepository.addEducatorEmail(principal.getName(), email);
+        }
+        return "redirect:/educator";
+    }
+
     @GetMapping("/newvideo")
     public String newVideo(@RequestParam("index") Integer index, Principal principal, Model model) {
         List<Course> courses = courseRepository.getAll();

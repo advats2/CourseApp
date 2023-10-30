@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -201,5 +202,21 @@ public class UserRepository {
             }
         }
         return blogs;
+    }
+
+    public void addEducatorFOE(String username, String foe) {
+        jdbcTemplate.update("INSERT INTO EducatorFieldOExpertise VALUES (?,?)", foe, username);
+    }
+
+    public void addEducatorEmail(String username, String email) {
+        jdbcTemplate.update("INSERT INTO EducatorEmailIDs VALUES (?,?)", email, username);
+    }
+
+    public void addStudentPno(String username, BigDecimal pno) {
+        jdbcTemplate.update("INSERT INTO StudentPhNos VALUES (?,?)", pno, username);
+    }
+
+    public void addStudentEmail(String username, String email) {
+        jdbcTemplate.update("INSERT INTO StudentEmailIDs VALUES (?,?)", email, username);
     }
 }
